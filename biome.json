@@ -19,7 +19,7 @@
 		"indentStyle": "tab"
 	},
 	"organizeImports": {
-		"enabled": false
+		"enabled": true
 	},
 	"linter": {
 		"enabled": true,
