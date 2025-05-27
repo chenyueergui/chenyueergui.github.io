@@ -145,6 +145,15 @@ set(FOO "foo")
 ```
 这样会覆盖所有的cache 中的`FOO`
 
+### 如何设置cmake build type
+
+```shell
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE INTERNAL "Build type")
+endif()
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+```
+
 
 ### 如何添加库
 ```shell
@@ -153,6 +162,8 @@ add_library(cxx_setup INTERFACE)
 # 添加其余库
 add_library(tools tools.cpp)
 ```
+
+
 
 ### 如何添加运行库
 ```shell
