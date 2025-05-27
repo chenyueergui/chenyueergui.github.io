@@ -98,6 +98,8 @@ clean:
 
 ## 使用cmake (recommended)
 
+[极佳的cmake 入门教程](https://cliutils.gitlab.io/modern-cmake/README.html)
+
 cmake 本身`不是构建系统` 是构建生成系统 为Make 等其他构建系统提供支持
 cmake 主要的功能有
 + 提供对于宿主机的支持，你不需要考虑你的电脑到底是windows macos 还是 linux
@@ -182,5 +184,103 @@ add_library(tools tools.cpp)
 target_link_libraries(tools PUBLIC cxx_setup)
 ```
 
+4. google test
+
++ 开启测试选项
+```shell
+# Enable testing for this project
+include(CTest)
+# Add subdirectories with code
+add_subdirectory(external)
+```
+
++ 在测试文件夹中注册
+```shell
+# BUILD_TESTING variable is created by include(CTest)
+# It is set to ON by default
+if (BUILD_TESTING)
+    add_executable(my_test my_test.cpp)
+    target_link_libraries(my_test PRIVATE GTest::gtest_main)
+
+    include(GoogleTest)
+    # Finds all the Google tests associated with the executable
+    gtest_discover_tests(my_test)
+endif()
+```
+
++ 使用googletest
+```shell
+// Must include the gtest header to use the testing library
+#include <gtest/gtest.h>
+
+namespace {
+  // We will test this dummy function but you can test
+  // any function from any library that you write too.
+  int GetMeaningOfLife() {  return 42; }
+}
+
+// All tests must live within TEST* blocks
+// Inside of the TEST block is a standard C++ scope
+// TestTopic defines a topic of our test, e.g. NameOfFunctionTest
+// TrivialEquality represents the name of this particular test
+// It should be descriptive and readable to the user
+// TEST is a macro, i.e., preprocessor replaces it with some code
+TEST(TestTopic, TrivialEquality) {
+  // We can test for equality, inequality etc.
+  // If the equality does not hold, the test fails.
+  // EXPECT_* are macros, i.e., also replaced by the preprocessor.
+  EXPECT_EQ(GetMeaningOfLife(), 42);
+}
+
+TEST(TestTopic, MoreEqualityTests) {
+  // ASSERT_* is similar to EXPECT_* but stops the execution
+  // of the test if fails.
+  // EXPECT_* continues execution on failure too.
+  ASSERT_EQ(GetMeaningOfLife(), 0) << "Oh no, a mistake!";
+  EXPECT_FLOAT_EQ(23.23F, 23.23F);
+}
+```
+
++ run google test
+```shell
+cmake -S . -B build
+cmake --build build -j 12
+GTEST_COLOR=1 ctest --test-dir build --output-on-failure -j12
+# Or if you have an older CMake version (<3.20)
+cd build && GTEST_COLOR=1 ctest --output-on-failure -j12
+```
+
++ 如何动态维护google test
+```shell
+cd my_project
+git submodule add https://github.com/google/googletest.git external/googletest
+git submodule update --init --recursive
+```
+
++ 自动更新脚本
+```shell
+# Adapted from https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
+find_package(Git QUIET)
+if(GIT_FOUND)
+    option(UPDATE_SUBMODULES "Check submodules during build" ON)
+    if(NOT UPDATE_SUBMODULES)
+        return()
+    endif()
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE EXISTING_SUBMODULES
+                    RESULT_VARIABLE RETURN_CODE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "Updating git submodules:\n${EXISTING_SUBMODULES}")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE RETURN_CODE)
+    if(NOT RETURN_CODE EQUAL "0")
+        message(WARNING "Cannot update submodules. Git command failed with ${RETURN_CODE}")
+        return()
+    endif()
+    message(STATUS "Git submodules updated successfully")
+endif()
+```
 
 ---
