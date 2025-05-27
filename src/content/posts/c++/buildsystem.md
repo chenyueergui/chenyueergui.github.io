@@ -115,6 +115,10 @@ project(our_project
         )
 ```
 
+> [!TIP]
+> 如何运行某个cmake project cmake -S . -B build
+> cmake --build build -j 12
+
 ### 如何设置变量
 ```shell
 set(FOO "foo" CACHE STRING "Description")
@@ -126,7 +130,7 @@ message(STATUS "Value of Foo: ${FOO}")
 + 直接修改CMakeCache.txt 中的FOO 的取值
 + `cmake -S . -B build -D FOO="cmd_value"`
 
-> [!NOTE] -D 参数改变的只是 cache 中的FOO 取值，不可以改变内部和局部变量
+> [!NOTE] -D 参数改变的只是 cache string 中的FOO 取值，不可以改变内部(cache internal)和局部变量(local), local 会覆盖所有在cmakecache.txt 中相同名称的变量
 
 如何直接将FOO 存入内部 而不是存入缓存中
 ```shell
@@ -137,12 +141,46 @@ set(FOO "foo" CACHE INTERNAL "Description")
 ```shell
 set(FOO "foo")
 ```
-
 这样会覆盖所有的cache 中的`FOO`
 
-c++ 文件结构
 
+### 如何添加库
+```shell
+# 添加项目配置/ 只含头文件的库
+add_library(cxx_setup INTERFACE)
+# 添加其余库
+add_library(tools tools.cpp)
+```
 
+### 如何添加运行库
+```shell
+add_executable(print_hello print_hello.cpp)
+```
+
+### 使用含有target 的命令
+所有含有target 的命令都一定要指明传播性，interface 为所有子辈可见，public为当前与所有子辈可见，private 表示仅自己可见
+
+1. 配置项目
+
+```shell
+add_library(cxx_setup INTERFACE)
+target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra)
+target_compile_features(cxx_setup INTERFACE cxx_std_17)
+# 指明头文件位置
+target_include_directories(cxx_setup INTERFACE ${PROJECT_SOURCE_DIR})
+```
+2. 连接库
+```shell
+add_executable(print_hello print_hello.cpp)
+# 指明依赖库
+target_link_libraries(print_hello PRIVATE tools cxx_setup)
+```
+
+3. 为库配置头文件与编译选项
+```shell
+add_library(tools tools.cpp)
+target_link_libraries(tools PUBLIC cxx_setup)
+```
 
 
 ---
