@@ -3,8 +3,8 @@ title: how to build a c++ system
 published: 2025-05-26
 description: 'how to build c++ system'
 image: ''
-tags: [c++, make, cmake]
-category: 'c++'
+tags: [cplusplus, make, cmake]
+category: 'cplusplus'
 draft: false 
 lang: 'zh_CN'
 ---
@@ -257,7 +257,7 @@ git submodule add https://github.com/google/googletest.git external/googletest
 git submodule update --init --recursive
 ```
 
-+ 自动更新脚本
++ 自动更新脚本 cmake/updateSubmodule.cmake
 ```shell
 # Adapted from https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
 find_package(Git QUIET)
