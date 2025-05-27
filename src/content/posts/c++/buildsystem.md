@@ -116,8 +116,8 @@ project(our_project
 ```
 
 > [!TIP]
-> 如何运行某个cmake project cmake -S . -B build
-> cmake --build build -j 12
+> 如何运行某个cmake project `cmake -S . -B build`
+> `cmake --build build -j 12`
 
 ### 如何设置变量
 ```shell
